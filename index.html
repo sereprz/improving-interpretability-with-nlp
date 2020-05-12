@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Improving Law Interpretability with NLP</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+counter: false
+
+# Improving Law Interpretability with NLP
+### Serena Peruzzo (she / her)
+
+---
+
+class: middle, center
+
+## What does "interpretability" mean?
+
+---
+class: left , middle
+
+# Law (def.)
+> The system of rules which a particular country or community recognizes as regulating the actions of its members.
+
+---
+
+class: top
+
+# Interpretability
+
+.left-column-50[
+### Content
+
+Rules and obligations
+
+Entities affected by the legislation
+]
+
+---
+
+class: top
+
+# Interpretability
+
+.left-column-50[
+### Content
+
+Rules and obligations
+
+Entities affected by the legislation
+]
+
+.left-column-50[
+
+### Implementation
+
+Find a representation of the rules that makes them more accessible and understandable
+  
+  * Patterns across industries
+  
+  * Private VS Public sector
+  
+  * Highlight Ambiguities
+]
+
+---
+
+class: top
+  
+# Challenges
+
+---
+
+class: top
+  
+# Challenges
+
+* No labelled set available to us
+
+---
+
+class: top
+  
+# Challenges
+
+* No labelled set available to us
+
+* Language parsing and tokenization
+
+---
+
+class: top
+  
+# Challenges
+
+* No labelled set available to us
+
+* Language parsing and tokenization
+
+* Limited lexicon but very specialized and context specific
+
+---
+
+class: top
+  
+# Challenges
+
+* No labelled set available to us
+
+* Language parsing and tokenization
+
+* Limited lexicon but very specialized and context specific
+
+* Syntactic complexity / convoluted sentences
+
+---
+
+class: top
+  
+# Challenges
+
+* No labelled set available to us
+
+* Language parsing and tokenization
+
+* Limited lexicon but very specialized and context specific
+
+* Syntactic complexity / convoluted sentences
+
+* Domain specific
+
+---
+
+class: left
+
+# Framework
+
+* Methodology
+  
+  * Pre-trained NLP models
+  
+  * Unsupervised ML
+
+* Extract information:
+  
+  * Rules
+  
+  * What entities are responsible for compliance
+  
+  * Difference between public and private responsibilities
+  
+  * Organize rules into homogeneous groups based on the entity responsible
+
+---
+
+class: top
+
+## A little grammar
+
+### Subject:
+
+* The word or phrase that indicates “who” or “what” performs the action of the verb
+
+* Entities that are responsible for complying with rules
+
+.remark-code[
+<b style="color: blue">Every employer</b> shall provide individualized workplace emergency response information to employees who have a disability
+]
+
+---
+
+class: top
+
+## A little grammar
+
+### Object:
+
+* The entity that is acted upon by the subject
+
+* The rule specification
+
+.remark-code[
+Every employer shall provide <b style="color: blue">workplace emergency response information</b> to employees who have a disability
+]
+
+---
+
+class: top
+
+# Accessibility for Ontarians with Disabilities Act  (AODA)
+
+* Statute and regulation passed in 2015
+
+* Defines rules and requirements for accessibility
+
+* Sets out processes for eliminating barriers
+
+* **Burden**: a requirement or obligation that organizations have to comply with
+  
+  * Physical and architectural barriers
+  
+  * Documentation
+  
+  * Training
+
+---
+
+class: top
+
+# 3 steps
+
+![](img/framework-of-analisys.png)
+
+---
+
+class: top
+
+# Step 1. Burdens extraction
+
+  * Limited vocabulary: {shall, must, oblige, require} + synonyms
+  
+  * For each sentence:
+    
+    1. Extract all words
+    
+    2. If any of words is included in the set, label it as burden
+  
+  * 0.89 Accuracy (proportion of sentences correctly classified)
+  
+  * 0.97 recall (proportion of burdens classified labeled as burdens)
+
+---
+
+class: top
+
+# Step 2. Subject Identification
+
+**Problem**: Long and complicated sentences where the subject may be a sentence on its own
+
+1. Use a Dependency Parser to represent the syntactic relationships between words as a tree structure
+
+2. Navigate the sub-tree of the subject to identify all the words that define it
+
+---
+.remark-code[
+<b style="color: blue">Obligated organizations that are school boards or educational or training institutions</b> shall keep record of the training provided
+]
+
+<br>
+
+![](img/dependency-tree-example-2.png)
+
+---
+
+class: left
+
+# Step 3. Subjects clustering
+
+## Objective:
+
+Organize burdens into homogeneous groups based on the entities that they affect
+    
+  * Any kind of pattern or regularity?
+  
+  * Difference between public VS private responsibilities?
+  
+  * Similarities across industries?
+
+---
+
+class: top
+  
+# Step 3. Subjects clustering
+
+## Solution:
+
+1. Represent the subjects of the burdens in a vector space
+
+  i. Sentence normalization (e.g. delete stopwords)
+
+---
+
+class: top
+  
+# Step 3. Subjects clustering
+
+## Solution:
+
+1. Represent the subjects of the burdens in a vector space
+  
+  i. Sentence normalization (e.g. delete stopwords)
+
+  ii. Vector representation
+
+    * Project each word into a semantic space<br>
+      `king - men + woman = queen`!
+
+---
+
+class: top
+  
+# Step 3. Subjects clustering
+
+## Solution:
+
+1. Represent the subjects of the burdens in a vector space
+  
+  i. Sentence normalization (e.g. delete stopwords)
+
+  ii. Vector representation
+
+    * Project each word into a semantic space<br>
+      `king - men + woman = queen`!
+
+  iii. Dimensionality Reduction
+
+    * Represent in a 2D space (fancy math!)
+
+---
+
+class: top
+  
+# Step 3. Subjects clustering
+
+## Solution:
+
+1. Represent the subjects of the burdens in a vector space
+  
+  i. Sentence normalization (e.g. delete stopwords)
+
+  ii. Vector representation
+
+    * Project each word into a semantic space<br>
+      `king - men + woman = queen`!
+
+  iii. Dimensionality Reduction
+
+    * Represent in a 2D space (fancy math!)
+
+2. Clustering
+
+---
+
+class: left
+
+## KMeans Clustering
+
+* Partition n data points in k clusters
+
+* Each data points is assigned to the cluster with the nearest mean
+
+* The average/centroids of the clusters serve as prototypes for the groups
+
+<br>
+
+.center[
+![](img/k-means-results.png)
+]
+---
+
+class: left
+
+# Evaluation
+
+.left-column[
+### tf-idf
+
+* Term Frequency (tf)
+
+* Inverse Document Frequency (idf)
+]
+
+.right-column[
+![](img/top-words-all-groups.png)
+]
+
+---
+
+class: top
+
+### Group 1
+
+.left-column[
+
+* Transportation standards
+
+* ~21% of burdens in this group
+
+]
+
+.right-column[
+![](img/top-words-group1.png)
+]
+
+---
+
+class: top
+
+### Group 2
+
+.left-column[
+
+* Physical barriers
+
+* Public spaces
+
+* ~25% of burdens are in this group
+
+]
+
+.right-column[
+![](img/top-words-group2.png)
+]
+
+---
+
+class: top
+
+### Group 3
+
+.left-column[
+
+* Administration
+
+* Compliance
+
+* Standards
+
+* ~50% of burdens are in this group
+]
+
+.right-column[
+![](img/top-words-group3.png)
+]
+
+---
+
+class: top
+
+# Summary
+
+---
+
+class: top
+
+# Summary
+
+.left-column-50[
+
+Rules and obligations
+]
+
+.right-column-50[
+
+Automate the extraction of burdens
+]
+
+---
+
+class: top
+
+# Summary
+
+.left-column-50[
+
+Rules and obligations
+
+Entities affected
+]
+
+.right-column-50[
+
+Automate the extraction of burdens
+
+Identify entities that are responsible for compliance
+]
+
+---
+
+class: top
+
+# Summary
+
+.left-column-50[
+
+Rules and obligations
+
+Entities affected
+
+<br>
+
+Homogeneous groups
+]
+
+.right-column-50[
+
+Automate the extraction of burdens
+
+Identify entities that are responsible for compliance
+
+<br>
+Organize rules into 3 groups
+]
+
+---
+
+class: top
+
+# Summary
+
+.left-column-50[
+
+Rules and obligations
+
+Entities affected
+
+<br>
+
+Homogeneous groups
+
+Patterns across industries
+]
+
+.right-column-50[
+
+Automate the extraction of burdens
+
+Identify entities that are responsible for compliance
+
+<br>
+Organize rules into 3 groups
+
+Focus on physical barriers and transportation
+
+Large proportion dedicated to administration and standard definitions
+]
+
+
+---
+
+class: top
+
+# Summary
+
+.left-column-50[
+
+Rules and obligations
+
+Entities affected
+
+<br>
+
+Homogeneous groups
+
+Patterns across industries
+
+<br><br><br><br>
+
+Public VS Private
+]
+
+.right-column-50[
+
+Automate the extraction of burdens
+
+Identify entities that are responsible for compliance
+
+<br>
+Organize rules into 3 groups
+
+Focus on physical barriers and transportation
+
+Large proportion dedicated to administration and standard definitions
+
+The difference between public and private sector is not clear
+]
+
+
+---
+
+class: top
+
+# Summary
+
+.left-column-50[
+
+Rules and obligations
+
+Entities affected
+
+<br>
+
+Homogeneous groups
+
+Patterns across industries
+
+<br><br><br><br>
+
+Public VS Private
+
+<br>
+
+Highlight Ambiguities
+]
+
+.right-column-50[
+
+Automate the extraction of burdens
+
+Identify entities that are responsible for compliance
+
+<br>
+Organize rules into 3 groups
+
+Focus on physical barriers and transportation
+
+Large proportion dedicated to administration and standard definitions
+
+The difference between public and private sector is not clear
+
+Ambiguities with respect to responsibilities in the last group
+]
+
+<!-- ---
+
+class: top
+
+# Summary
+
+
+* Automate the extraction of rules
+
+* Identify entities that are responsible for compliance
+
+* Organize rules into homogeneous groups with respect to their impact on various entities
+  
+  * The difference between public and private sector is not clear
+  
+  * Focus on physical barriers and transportation
+  
+  * Large proportion dedicated to administration and standard definitions
+
+  * Ambiguities with respect to responsibilities in the last group -->
+
+---
+
+class: top
+
+# Future work
+
+* Proof Of Concept
+
+* Increase accessibility:
+
+  * Extract and summarize infomation
+  
+  * Identify ambiguities in the legislation
+
+---
+
+class: center, middle
+
+### code: https://github.com/bardess/odsc_2019_workshop
+### slides: https://github.com/sereprz/improving-law-interpretability-with-nlp
+
+# Thank you!
+### [@sereprz](https://twitter.com/sereprz)
+
+
+    </textarea>
+    <script src="js/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+        // .. or by using a format function
+        slideNumberFormat: function (current, total) {
+        return '';
+        },
+        countIncrementalSlides: false,
+        highlightStyle: 'tomorrow-night-blue'
+      });
+    </script>
+  </body>
+</html>
